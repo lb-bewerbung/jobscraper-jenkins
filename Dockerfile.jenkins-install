@@ -1,0 +1,67 @@
+FROM jenkins/jenkins:2.479.1-jdk17
+USER root
+
+# Run updates and install necessary packages
+RUN apt-get update && apt-get install -y \
+    lsb-release \
+    curl \
+    sudo \
+    vim \
+    ansible \
+    rsync
+
+# Add Docker repository
+RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+  https://download.docker.com/linux/debian/gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+# Install Docker CLI
+RUN apt-get update && apt-get install -y docker-ce-cli
+
+# Install Jenkins plugins
+RUN jenkins-plugin-cli --plugins \
+    "blueocean" \
+    "docker-workflow" \
+    "folders" \
+    "markup-formatter" \
+    "build-timeout" \
+    "credentials-binding" \
+    "timestamper" \
+    "workspace-cleanup" \
+    "ant" \
+    "gradle" \
+    "pipeline" \
+    "github-branch-source" \
+    "pipeline-github-libraries" \
+    "pipeline-graph-view" \
+    "git" \
+    "ssh-build-agents" \
+    "matrix-auth" \
+    "pam-auth" \
+    "ldap" \
+    "email-ext" \
+    "mailer" \
+    "dark-theme" \
+    "dashboard-view" \
+    "configuration-as-code" \
+    "build-name-setter" \
+    "config-file-provider" \
+    "ssh-agent" \
+    "throttle-concurrent-builds" \
+    "embeddable-build-status" \
+    "coverage" \
+    "htmlpublisher" \
+    "junit" \
+    "warnings" \
+    "conditional-buildstep" \
+    "parameterized-trigger" \
+    "copyartifact" \
+    "github" \
+    "git-parameter" \
+    "role-strategy" \
+    "locale"
+
+USER jenkins
