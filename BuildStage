@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    options {
+        // skip checkout at pipeline start
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        DOCKER_IMAGE_NAME = "springboot-app" // Name des Docker-Images
+    }
+
+    tools {
+        // install maven and declare toolname
+        maven "maven"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code from GitHub...'
+                // clean before build
+                cleanWs()
+                // checkout code from scm
+                git branch: 'main', credentialsId: '<access-token-name>', url: 'https://github.com/lb-bewerbung/jobscraper-springboot.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Running Maven build...'
+                sh "mvn clean package -DskipTests=true -e"
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo 'Building Docker container...'
+                // remove old image if available
+                sh """
+                docker rmi -f $DOCKER_IMAGE_NAME || true
+                """
+                
+                // build new image 
+                sh """
+                docker build -t $DOCKER_IMAGE_NAME .
+                """
+            }
+        }
+
+        stage('Test in Container') {
+            steps {
+                echo 'Running unit tests in Docker container...'
+        
+                // remove pre-existing container
+                sh """
+                docker rm -f $DOCKER_IMAGE_NAME-container || true
+                """
+                
+                // start container and execute maven
+                sh """
+                docker run -v \$(pwd)/target:/app/target --name $DOCKER_IMAGE_NAME-container --entrypoint "mvn" $DOCKER_IMAGE_NAME test
+                """
+            }
+        }
+
+
+        stage('Post Actions') {
+            steps {
+                echo 'Recording test results and archiving artifacts...'
+                junit '**/target/surefire-reports/TEST-*.xml'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            echo 'Nothing to do yet...'
+            // optional: remove image if tests fail
+            // sh """
+            // docker rmi -f $DOCKER_IMAGE_NAME || true
+            // """
+        }
+    }
+}
