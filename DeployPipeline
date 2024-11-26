@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    
+    environment {
+        ANSIBLE_INVENTORY = '/var/jenkins_home/workspace/ansible/hosts'  // path to inventory file (z.B. /etc/ansible/hosts)
+        ANSIBLE_PLAYBOOK = '/var/jenkins_home/workspace/ansible/ansible-playbook.yml'  // path to ansible playbook
+    }
+    
+    tools {
+        // declare toolname of installed ansible
+        ansible "ansible" 
+    }
+
+    stages {
+        stage('Prepare Docker Image') {
+            steps {
+                echo 'Packing Docker image into TAR file'
+                sh '''
+                docker save -o springboot-app.tar springboot-app
+                mv springboot-app.tar /var/jenkins_home/workspace/docker_images/
+                '''
+            }
+        }
+
+        stage('Deploy with Ansible') {
+            steps {
+                echo 'Deploying with Ansible'
+                // execute playbook
+                ansiblePlaybook(
+                    playbook: "${env.ANSIBLE_PLAYBOOK}",
+                    inventory: "${env.ANSIBLE_INVENTORY}"
+                )
+            }
+        }
+    }
+}
