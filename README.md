@@ -3,7 +3,7 @@ Dies sind die Installations- und Konfigurationsdaten der CI-CD-Pipeline für das
 
 ### Dateien
 1. install_docker.sh 
-   - Installiert aktuellste  Docker engine 
+   - Installiert aktuellste Docker Engine 
 2. run_docker_in_docker.sh
    - Erstellt und startet einen Jenkins-side-container, der es ermöglicht Dockerbefehle in einem Container auszuführen
 3. Dockerfile.jenkins-install
