@@ -1,5 +1,5 @@
 ## Kurzbeschreibung
-Dies sind die Installations- und Konfigurationsdaten der CI-CD-Pipeline für das Hauptrojekt (siehe <a href="https://github.com/lb-bewerbung/jobscraper-jenkins">Jobscraper-Jenkins</a>). 
+Dies sind die Installations- und Konfigurationsdaten der CI-CD-Pipeline für das Hauptrojekt (siehe <a href="https://github.com/lb-bewerbung/jobscraper-springboot">Jobscraper-Springboot</a>). 
 
 ### Dateien
 1. install_docker.sh 
